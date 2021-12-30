@@ -1,0 +1,1349 @@
+MAN(1)                                       Manual pager utils                                      MAN(1)
+
+NAME
+       man - an interface to the on-line reference manuals
+
+SYNOPSIS
+       man  [-C  file]  [-d]  [-D]  [--warnings[=warnings]] [-R encoding] [-L locale] [-m system[,...]] [-M
+       path] [-S list] [-e extension] [-i|-I] [--regex|--wildcard] [--names-only] [-a] [-u] [--no-subpages]
+       [-P  pager]  [-r prompt] [-7] [-E encoding] [--no-hyphenation] [--no-justification] [-p string] [-t]
+       [-T[device]] [-H[browser]] [-X[dpi]] [-Z] [[section] page[.section] ...] ...
+       man -k [apropos options] regexp ...
+       man -K [-w|-W] [-S list] [-i|-I] [--regex] [section] term ...
+       man -f [whatis options] page ...
+       man -l [-C file] [-d] [-D] [--warnings[=warnings]] [-R encoding] [-L locale] [-P pager] [-r  prompt]
+       [-7] [-E encoding] [-p string] [-t] [-T[device]] [-H[browser]] [-X[dpi]] [-Z] file ...
+       man -w|-W [-C file] [-d] [-D] page ...
+       man -c [-C file] [-d] [-D] page ...
+       man [-?V]
+
+DESCRIPTION
+       man  is  the  system's manual pager.  Each page argument given to man is normally the name of a pro‐
+       gram, utility or function.  The manual page associated with each of these arguments  is  then  found
+       and  displayed.  A section, if provided, will direct man to look only in that section of the manual.
+       The default action is to search in all of the available sections following a pre-defined order ("1 n
+       l  8  3  2 3posix 3pm 3perl 3am 5 4 9 6 7" by default, unless overridden by the SECTION directive in
+       /etc/manpath.config), and to show only the first page found, even if page  exists  in  several  sec‐
+       tions.
+
+       The table below shows the section numbers of the manual followed by the types of pages they contain.
+
+       1   Executable programs or shell commands
+       2   System calls (functions provided by the kernel)
+       3   Library calls (functions within program libraries)
+       4   Special files (usually found in /dev)
+       5   File formats and conventions eg /etc/passwd
+       6   Games
+       7   Miscellaneous (including macro packages and conventions), e.g. man(7), groff(7)
+       8   System administration commands (usually only for root)
+       9   Kernel routines [Non standard]
+
+       A manual page consists of several sections.
+
+       Conventional section names include NAME, SYNOPSIS, CONFIGURATION, DESCRIPTION, OPTIONS, EXIT STATUS,
+       RETURN VALUE, ERRORS, ENVIRONMENT, FILES, VERSIONS, CONFORMING TO, NOTES,  BUGS,  EXAMPLE,  AUTHORS,
+       and SEE ALSO.
+
+       The  following  conventions  apply  to the SYNOPSIS section and can be used as a guide in other sec‐
+       tions.
+
+       bold text          type exactly as shown.
+       italic text        replace with appropriate argument.
+       [-abc]             any or all arguments within [ ] are optional.
+       -a|-b              options delimited by | cannot be used together.
+       argument ...       argument is repeatable.
+       [expression] ...   entire expression within [ ] is repeatable.
+
+       Exact rendering may vary depending on the output device.  For instance, man will usually not be able
+       to  render  italics  when  running in a terminal, and will typically use underlined or coloured text
+       instead.
+
+       The command or function illustration is a pattern that should match all  possible  invocations.   In
+       some  cases  it is advisable to illustrate several exclusive invocations as is shown in the SYNOPSIS
+       section of this manual page.
+
+EXAMPLES
+       man ls
+           Display the manual page for the item (program) ls.
+
+       man man.7
+           Display the manual page for macro package man from section 7.
+
+       man -a intro
+           Display, in succession, all of the available intro manual pages contained within the manual.  It
+           is possible to quit between successive displays or skip any of them.
+
+       man -t alias | lpr -Pps
+           Format  the  manual  page  referenced  by `alias', usually a shell manual page, into the default
+           troff or groff format and pipe it to the printer named ps.  The default output for groff is usu‐
+           ally PostScript.  man --help should advise as to which processor is bound to the -t option.
+
+       man -l -Tdvi ./foo.1x.gz > ./foo.1x.dvi
+           This  command  will decompress and format the nroff source manual page ./foo.1x.gz into a device
+           independent (dvi) file.  The redirection is necessary  as  the  -T  flag  causes  output  to  be
+           directed  to  stdout  with  no pager.  The output could be viewed with a program such as xdvi or
+           further processed into PostScript using a program such as dvips.
+
+       man -k printf
+           Search the short descriptions and manual page names for the keyword printf  as  regular  expres‐
+           sion.  Print out any matches.  Equivalent to apropos printf.
+
+       man -f smail
+           Lookup  the  manual pages referenced by smail and print out the short descriptions of any found.
+           Equivalent to whatis smail.
+
+OVERVIEW
+       Many options are available to man in order to give as much flexibility  as  possible  to  the  user.
+       Changes  can  be  made to the search path, section order, output processor, and other behaviours and
+       operations detailed below.
+
+       If set, various environment variables are interrogated to determine the operation  of  man.   It  is
+       possible  to  set  the  `catch  all'  variable $MANOPT to any string in command line format with the
+       exception that any spaces used as part of an option's argument must be escaped (preceded by a  back‐
+       slash).   man  will parse $MANOPT prior to parsing its own command line.  Those options requiring an
+       argument will be overridden by the same options found on the command line.   To  reset  all  of  the
+       options set in $MANOPT, -D can be specified as the initial command line option.  This will allow man
+       to `forget' about the options specified in $MANOPT although they must still have been valid.
+
+       The manual pager utilities packaged as man-db make extensive use of index  database  caches.   These
+       caches  contain  information  such as where each manual page can be found on the filesystem and what
+       its whatis (short one line description of the man page) contains, and allow man to run  faster  than
+       if  it  had  to  search  the filesystem each time to find the appropriate manual page.  If requested
+       using the -u option, man will ensure that the caches remain consistent, which can obviate  the  need
+       to manually run software to update traditional whatis text databases.
+
+       If  man cannot find a mandb initiated index database for a particular manual page hierarchy, it will
+       still search for the requested manual pages, although file globbing  will  be  necessary  to  search
+       within  that hierarchy.  If whatis or apropos fails to find an index it will try to extract informa‐
+       tion from a traditional whatis database instead.
+
+       These utilities support compressed source nroff files having, by default, the extensions of  .Z,  .z
+       and  .gz.  It is possible to deal with any compression extension, but this information must be known
+       at compile time.  Also, by default, any cat pages produced are compressed using gzip.  Each `global'
+       manual  page  hierarchy  such  as /usr/share/man or /usr/X11R6/man may have any directory as its cat
+       page hierarchy.  Traditionally the cat pages are stored under the same hierarchy as the  man  pages,
+       but  for  reasons  such as those specified in the File Hierarchy Standard (FHS), it may be better to
+       store them elsewhere.  For details on how to do this, please read manpath(5).  For details on why to
+       do this, read the standard.
+
+       International  support  is available with this package.  Native language manual pages are accessible
+       (if available on your system) via use of locale functions.  To activate such support, it  is  neces‐
+       sary to set either $LC_MESSAGES, $LANG or another system dependent environment variable to your lan‐
+       guage locale, usually specified in the POSIX 1003.1 based format:
+
+       <language>[_<territory>[.<character-set>[,<version>]]]
+
+       If the desired page is available in your locale, it will be displayed in lieu of the standard  (usu‐
+       ally American English) page.
+
+       Support  for  international message catalogues is also featured in this package and can be activated
+       in the same way, again if available.  If you find that the manual pages and message catalogues  sup‐
+       plied with this package are not available in your native language and you would like to supply them,
+       please contact the maintainer who will be coordinating such activity.
+
+       For information regarding other features and extensions available with  this  manual  pager,  please
+       read the documents supplied with the package.
+
+DEFAULTS
+       man  will  search for the desired manual pages within the index database caches. If the -u option is
+       given, a cache consistency check is  performed  to  ensure  the  databases  accurately  reflect  the
+       filesystem.   If  this  option is always given, it is not generally necessary to run mandb after the
+       caches are initially created, unless a cache becomes corrupt.  However, the cache consistency  check
+       can be slow on systems with many manual pages installed, so it is not performed by default, and sys‐
+       tem administrators may wish to run mandb every week or so to keep the  database  caches  fresh.   To
+       forestall  problems caused by outdated caches, man will fall back to file globbing if a cache lookup
+       fails, just as it would if no cache was present.
+
+       Once a manual page has been located, a check is performed to find out  if  a  relative  preformatted
+       `cat'  file  already  exists and is newer than the nroff file.  If it does and is, this preformatted
+       file is (usually) decompressed and then displayed, via use of a pager.  The pager can  be  specified
+       in a number of ways, or else will fall back to a default is used (see option -P for details).  If no
+       cat is found or is older than the nroff file, the nroff is filtered through various programs and  is
+       shown immediately.
+
+       If a cat file can be produced (a relative cat directory exists and has appropriate permissions), man
+       will compress and store the cat file in the background.
+
+       The filters are deciphered by a number of means.  Firstly, the command line option -p or  the  envi‐
+       ronment  variable  $MANROFFSEQ is interrogated.  If -p was not used and the environment variable was
+       not set, the initial line of the nroff file is parsed for a preprocessor string.  To contain a valid
+       preprocessor string, the first line must resemble
+
+       '\" <string>
+
+       where string can be any combination of letters described by option -p below.
+
+       If none of the above methods provide any filter information, a default set is used.
+
+       A  formatting  pipeline is formed from the filters and the primary formatter (nroff or [tg]roff with
+       -t) and executed.  Alternatively, if an executable program mandb_nfmt (or mandb_tfmt with -t) exists
+       in the man tree root, it is executed instead.  It gets passed the manual source file, the preproces‐
+       sor string, and optionally the device specified with -T or -E as arguments.
+
+OPTIONS
+       Non argument options that are duplicated either on the command line, in $MANOPT, or  both,  are  not
+       harmful.  For options that require an argument, each duplication will override the previous argument
+       value.
+
+   General options
+       -C file, --config-file=file
+              Use this user configuration file rather than the default of ~/.manpath.
+
+       -d, --debug
+              Print debugging information.
+
+       -D, --default
+              This option is normally issued as the very first option and resets  man's  behaviour  to  its
+              default.   Its  use is to reset those options that may have been set in $MANOPT.  Any options
+              that follow -D will have their usual effect.
+
+       --warnings[=warnings]
+              Enable warnings from groff.  This may be used to perform sanity checks on the source text  of
+              manual  pages.   warnings  is a comma-separated list of warning names; if it is not supplied,
+              the default is "mac".  See the “Warnings” node in info groff for a list of available  warning
+              names.
+
+   Main modes of operation
+       -f, --whatis
+              Equivalent  to  whatis.  Display a short description from the manual page, if available.  See
+              whatis(1) for details.
+
+       -k, --apropos
+              Equivalent to apropos.  Search the short manual page descriptions for  keywords  and  display
+              any matches.  See apropos(1) for details.
+
+       -K, --global-apropos
+              Search  for  text  in  all manual pages.  This is a brute-force search, and is likely to take
+              some time; if you can, you should specify a section to reduce the number of pages  that  need
+              to  be searched.  Search terms may be simple strings (the default), or regular expressions if
+              the --regex option is used.
+
+              Note that this searches the sources of the manual pages, not the rendered text,  and  so  may
+              include  false positives due to things like comments in source files.  Searching the rendered
+              text would be much slower.
+
+       -l, --local-file
+              Activate `local' mode.  Format and display local manual files instead  of  searching  through
+              the  system's  manual  collection.  Each manual page argument will be interpreted as an nroff
+              source file in the correct format.  No cat file is produced.  If '-' is listed as one of  the
+              arguments,  input  will  be taken from stdin.  When this option is not used, and man fails to
+              find the page required, before displaying the error message, it attempts to act  as  if  this
+              option was supplied, using the name as a filename and looking for an exact match.
+
+       -w, --where, --path, --location
+              Don't  actually  display  the  manual pages, but do print the location(s) of the source nroff
+              files that would be formatted.
+
+       -W, --where-cat, --location-cat
+              Don't actually display the manual pages, but do print the location(s) of the cat  files  that
+              would be displayed.  If -w and -W are both specified, print both separated by a space.
+
+       -c, --catman
+              This option is not for general use and should only be used by the catman program.
+
+       -R encoding, --recode=encoding
+              Instead  of  formatting  the manual page in the usual way, output its source converted to the
+              specified encoding.  If you already know the encoding of the source file, you  can  also  use
+              manconv(1)  directly.   However,  this option allows you to convert several manual pages to a
+              single encoding without having to explicitly state the encoding of each, provided  that  they
+              were already installed in a structure similar to a manual page hierarchy.
+
+   Finding manual pages
+       -L locale, --locale=locale
+              man  will  normally  determine  your  current locale by a call to the C function setlocale(3)
+              which interrogates various environment variables, possibly including $LC_MESSAGES and  $LANG.
+              To  temporarily  override  the  determined  value,  use this option to supply a locale string
+              directly to man.  Note that it will not take effect  until  the  search  for  pages  actually
+              begins.  Output such as the help message will always be displayed in the initially determined
+              locale.
+
+       -m system[,...], --systems=system[,...]
+              If this system has access to other operating system's manual  pages,  they  can  be  accessed
+              using  this option.  To search for a manual page from NewOS's manual page collection, use the
+              option -m NewOS.
+
+              The system specified can be a combination of comma  delimited  operating  system  names.   To
+              include  a  search of the native operating system's manual pages, include the system name man
+              in the argument string.  This option will override the $SYSTEM environment variable.
+
+       -M path, --manpath=path
+              Specify an alternate manpath to use.  By default, man uses manpath derived code to  determine
+              the  path  to  search.   This  option  overrides the $MANPATH environment variable and causes
+              option -m to be ignored.
+
+              A path specified as a manpath must be the root of a manual  page  hierarchy  structured  into
+              sections  as described in the man-db manual (under "The manual page system").  To view manual
+              pages outside such hierarchies, see the -l option.
+
+       -S list, -s list, --sections=list
+              List is a colon- or comma-separated list of `order specific' manual sections to search.  This
+              option  overrides  the  $MANSECT environment variable.  (The -s spelling is for compatibility
+              with System V.)
+
+       -e sub-extension, --extension=sub-extension
+              Some systems incorporate large packages of manual pages, such as those that accompany the Tcl
+              package, into the main manual page hierarchy.  To get around the problem of having two manual
+              pages with the same name such as exit(3), the Tcl pages were usually all assigned to  section
+              l.   As  this is unfortunate, it is now possible to put the pages in the correct section, and
+              to assign a specific `extension' to them, in this case, exit(3tcl).  Under normal  operation,
+              man  will  display  exit(3)  in preference to exit(3tcl).  To negotiate this situation and to
+              avoid having to know which section the page you require resides in, it  is  now  possible  to
+              give  man a sub-extension string indicating which package the page must belong to.  Using the
+              above example, supplying the option -e tcl to man will restrict the search to pages having an
+              extension of *tcl.
+
+       -i, --ignore-case
+              Ignore case when searching for manual pages.  This is the default.
+
+       -I, --match-case
+              Search for manual pages case-sensitively.
+
+       --regex
+              Show  all  pages with any part of either their names or their descriptions matching each page
+              argument as a regular expression, as with apropos(1).  Since there is usually  no  reasonable
+              way to pick a "best" page when searching for a regular expression, this option implies -a.
+
+       --wildcard
+              Show  all  pages with any part of either their names or their descriptions matching each page
+              argument using shell-style wildcards, as with apropos(1) --wildcard.  The page argument  must
+              match  the entire name or description, or match on word boundaries in the description.  Since
+              there is usually no reasonable way to pick a "best" page when searching for a wildcard,  this
+              option implies -a.
+
+       --names-only
+              If the --regex or --wildcard option is used, match only page names, not page descriptions, as
+              with whatis(1).  Otherwise, no effect.
+
+       -a, --all
+              By default, man will exit after displaying the most suitable manual  page  it  finds.   Using
+              this  option forces man to display all the manual pages with names that match the search cri‐
+              teria.
+
+       -u, --update
+              This option causes man to perform an `inode level' consistency check on its  database  caches
+              to  ensure  that  they are an accurate representation of the filesystem.  It will only have a
+              useful effect if man is installed with the setuid bit set.
+
+       --no-subpages
+              By default, man will try to interpret pairs of manual page names given on the command line as
+              equivalent  to a single manual page name containing a hyphen or an underscore.  This supports
+              the common pattern of programs that implement a number of subcommands, allowing them to  pro‐
+              vide  manual  pages  for  each  that can be accessed using similar syntax as would be used to
+              invoke the subcommands themselves.  For example:
+
+                $ man -aw git diff
+                /usr/share/man/man1/git-diff.1.gz
+
+              To disable this behaviour, use the --no-subpages option.
+
+                $ man -aw --no-subpages git diff
+                /usr/share/man/man1/git.1.gz
+                /usr/share/man/man3/Git.3pm.gz
+                /usr/share/man/man1/diff.1.gz
+
+   Controlling formatted output
+       -P pager, --pager=pager
+              Specify which output pager to use.  By default, man uses pager, falling back to cat if  pager
+              is not found or is not executable.  This option overrides the $MANPAGER environment variable,
+              which in turn overrides the $PAGER environment variable.  It is not used in conjunction  with
+              -f or -k.
+
+              The value may be a simple command name or a command with arguments, and may use shell quoting
+              (backslashes, single quotes, or double quotes).  It may not use  pipes  to  connect  multiple
+              commands;  if  you need that, use a wrapper script, which may take the file to display either
+              as an argument or on standard input.
+
+       -r prompt, --prompt=prompt
+              If a recent version of less is used as the pager, man will attempt to set its prompt and some
+              sensible options.  The default prompt looks like
+
+               Manual page name(sec) line x
+
+              where name denotes the manual page name, sec denotes the section it was found under and x the
+              current line number.  This is achieved by using the $LESS environment variable.
+
+              Supplying -r with a string will override this default.   The  string  may  contain  the  text
+              $MAN_PN  which  will  be expanded to the name of the current manual page and its section name
+              surrounded by `(' and `)'.  The string used to produce the default could be expressed as
+
+              \ Manual\ page\ \$MAN_PN\ ?ltline\ %lt?L/%L.:
+              byte\ %bB?s/%s..?\ (END):?pB\ %pB\\%..
+              (press h for help or q to quit)
+
+              It is broken into three lines here for the sake of readability only.  For its meaning see the
+              less(1)  manual page.  The prompt string is first evaluated by the shell.  All double quotes,
+              back-quotes and backslashes in the prompt must be escaped  by  a  preceding  backslash.   The
+              prompt  string may end in an escaped $ which may be followed by further options for less.  By
+              default man sets the -ix8 options.
+
+              The $MANLESS environment variable described below may be used to set a default prompt  string
+              if none is supplied on the command line.
+
+       -7, --ascii
+              When viewing a pure ascii(7) manual page on a 7 bit terminal or terminal emulator, some char‐
+              acters may not display correctly when using the latin1(7) device description with GNU  nroff.
+              This  option  allows pure ascii manual pages to be displayed in ascii with the latin1 device.
+              It will not translate any latin1 text.  The following table shows the translations performed:
+              some parts of it may only be displayed properly when using GNU nroff's latin1(7) device.
+
+              Description           Octal   latin1   ascii
+              ─────────────────────────────────────────────
+
+              continuation hyphen    255      ‐        -
+              bullet (middle dot)    267      ·        o
+              acute accent           264      ´        '
+              multiplication sign    327      ×        x
+
+              If  the  latin1  column displays correctly, your terminal may be set up for latin1 characters
+              and this option is not necessary.  If the latin1 and ascii columns  are  identical,  you  are
+              reading  this  page using this option or man did not format this page using the latin1 device
+              description.  If the latin1 column is missing or corrupt, you may need to view  manual  pages
+              with this option.
+
+              This  option  is  ignored  when  using options -t, -H, -T, or -Z and may be useless for nroff
+              other than GNU's.
+
+       -E encoding, --encoding=encoding
+              Generate output for a character encoding other than the default.  For backward compatibility,
+              encoding  may  be  an nroff device such as ascii, latin1, or utf8 as well as a true character
+              encoding such as UTF-8.
+
+       --no-hyphenation, --nh
+              Normally, nroff will automatically hyphenate text at line breaks even in words  that  do  not
+              contain  hyphens,  if  it  is necessary to do so to lay out words on a line without excessive
+              spacing.  This option disables automatic hyphenation, so words will  only  be  hyphenated  if
+              they already contain hyphens.
+
+              If  you are writing a manual page and simply want to prevent nroff from hyphenating a word at
+              an inappropriate point, do not use this option, but consult the nroff documentation  instead;
+              for  instance,  you  can put "\%" inside a word to indicate that it may be hyphenated at that
+              point, or put "\%" at the start of a word to prevent it from being hyphenated.
+
+       --no-justification, --nj
+              Normally, nroff will automatically justify text to both margins.  This option  disables  full
+              justification,  leaving  justified  only  to the left margin, sometimes called "ragged-right"
+              text.
+
+              If you are writing a manual page and simply want to prevent  nroff  from  justifying  certain
+              paragraphs,  do  not  use  this  option,  but  consult  the  nroff documentation instead; for
+              instance, you can use the ".na", ".nf", ".fi", and  ".ad"  requests  to  temporarily  disable
+              adjusting and filling.
+
+       -p string, --preprocessor=string
+              Specify  the sequence of preprocessors to run before nroff or troff/groff.  Not all installa‐
+              tions will have a full set of preprocessors.  Some of the preprocessors and the letters  used
+              to  designate  them  are:  eqn  (e), grap (g), pic (p), tbl (t), vgrind (v), refer (r).  This
+              option overrides the $MANROFFSEQ environment variable.  zsoelim is always  run  as  the  very
+              first preprocessor.
+
+       -t, --troff
+              Use  groff  -mandoc to format the manual page to stdout.  This option is not required in con‐
+              junction with -H, -T, or -Z.
+
+       -T[device], --troff-device[=device]
+              This option is used to change groff (or possibly troff's) output to be suitable for a  device
+              other  than  the  default.   It implies -t.  Examples (provided with Groff-1.17) include dvi,
+              latin1, ps, utf8, X75 and X100.
+
+       -H[browser], --html[=browser]
+              This option will cause groff to produce HTML output, and will display that output  in  a  web
+              browser.  The choice of browser is determined by the optional browser argument if one is pro‐
+              vided, by the $BROWSER environment variable, or by a compile-time default if  that  is  unset
+              (usually lynx).  This option implies -t, and will only work with GNU troff.
+
+       -X[dpi], --gxditview[=dpi]
+              This  option  displays the output of groff in a graphical window using the gxditview program.
+              The dpi (dots per inch) may be 75, 75-12, 100, or 100-12, defaulting to 75; the -12  variants
+              use  a  12-point  base  font.   This option implies -T with the X75, X75-12, X100, or X100-12
+              device respectively.
+
+       -Z, --ditroff
+              groff will run troff and then use an appropriate post-processor to  produce  output  suitable
+              for  the  chosen  device.  If groff -mandoc is groff, this option is passed to groff and will
+              suppress the use of a post-processor.  It implies -t.
+
+   Getting help
+       -?, --help
+              Print a help message and exit.
+
+       --usage
+              Print a short usage message and exit.
+
+       -V, --version
+              Display version information.
+
+EXIT STATUS
+       0      Successful program execution.
+
+       1      Usage, syntax or configuration file error.
+
+       2      Operational error.
+
+       3      A child process returned a non-zero exit status.
+
+       16     At least one of the pages/files/keywords didn't exist or wasn't matched.
+
+ENVIRONMENT
+       MANPATH
+              If $MANPATH is set, its value is used as the path to search for manual pages.
+
+       MANROFFOPT
+              The contents of $MANROFFOPT are added to the command line every time man invokes the  format‐
+              ter (nroff, troff, or groff).
+
+       MANROFFSEQ
+              If  $MANROFFSEQ  is set, its value is used to determine the set of preprocessors to pass each
+              manual page through.  The default preprocessor list is system dependent.
+
+       MANSECT
+              If $MANSECT is set, its value is a colon-delimited list of sections and it is used to  deter‐
+              mine  which  manual sections to search and in what order.  The default is "1 n l 8 3 2 3posix
+              3pm 3perl 3am 5 4 9 6 7", unless overridden by the SECTION directive in /etc/manpath.config.
+
+       MANPAGER, PAGER
+              If $MANPAGER or $PAGER is set ($MANPAGER is used in preference), its value  is  used  as  the
+              name of the program used to display the manual page.  By default, pager is used, falling back
+              to cat if pager is not found or is not executable.
+
+              The value may be a simple command name or a command with arguments, and may use shell quoting
+              (backslashes,  single  quotes,  or  double quotes).  It may not use pipes to connect multiple
+              commands; if you need that, use a wrapper script, which may take the file to  display  either
+              as an argument or on standard input.
+
+       MANLESS
+              If  $MANLESS  is set, its value will be used as the default prompt string for the less pager,
+              as if it had been passed using the -r option (so any occurrences of the text $MAN_PN will  be
+              expanded in the same way).  For example, if you want to set the prompt string unconditionally
+              to “my prompt string”, set $MANLESS to ‘-Psmy prompt string’.  Using the -r option  overrides
+              this environment variable.
+
+       BROWSER
+              If $BROWSER is set, its value is a colon-delimited list of commands, each of which in turn is
+              used to try to start a web browser for man --html.  In each command,  %s  is  replaced  by  a
+              filename  containing the HTML output from groff, %% is replaced by a single percent sign (%),
+              and %c is replaced by a colon (:).
+
+       SYSTEM If $SYSTEM is set, it will have the same effect as if it had been specified as  the  argument
+              to the -m option.
+
+       MANOPT If  $MANOPT  is set, it will be parsed prior to man's command line and is expected to be in a
+              similar format.  As all of the other man specific environment variables can be  expressed  as
+              command  line  options,  and are thus candidates for being included in $MANOPT it is expected
+              that they will become obsolete.  N.B.  All spaces that should be interpreted as  part  of  an
+              option's argument must be escaped.
+
+       MANWIDTH
+              If  $MANWIDTH  is  set, its value is used as the line length for which manual pages should be
+              formatted.  If it is not set, manual pages will be formatted with a line  length  appropriate
+              to  the  current  terminal (using the value of $COLUMNS, an ioctl(2) if available, or falling
+              back to 80 characters if neither is available).  Cat  pages  will  only  be  saved  when  the
+              default  formatting  can  be used, that is when the terminal line length is between 66 and 80
+              characters.
+
+       MAN_KEEP_FORMATTING
+              Normally, when output is not being directed to a terminal (such as to a file or a pipe), for‐
+              matting  characters are discarded to make it easier to read the result without special tools.
+              However, if $MAN_KEEP_FORMATTING is set to any non-empty value, these  formatting  characters
+              are retained.  This may be useful for wrappers around man that can interpret formatting char‐
+              acters.
+
+       MAN_KEEP_STDERR
+              Normally, when output is being directed to a terminal (usually to a pager), any error  output
+              from  the  command  used  to produce formatted versions of manual pages is discarded to avoid
+              interfering with the pager's display.  Programs such as groff often produce relatively  minor
+              error  messages  about typographical problems such as poor alignment, which are unsightly and
+              generally confusing when displayed along with the manual page.  However, some users  want  to
+              see  them anyway, so, if $MAN_KEEP_STDERR is set to any non-empty value, error output will be
+              displayed as usual.
+
+       LANG, LC_MESSAGES
+              Depending on system and implementation, either or both of  $LANG  and  $LC_MESSAGES  will  be
+              interrogated  for  the  current message locale.  man will display its messages in that locale
+              (if available).  See setlocale(3) for precise details.
+
+FILES
+       /etc/manpath.config
+              man-db configuration file.
+
+       /usr/share/man
+              A global manual page hierarchy.
+
+       /usr/share/man/index.(bt|db|dir|pag)
+              A traditional global index database cache.
+
+       /var/cache/man/index.(bt|db|dir|pag)
+              An FHS compliant global index database cache.
+
+SEE ALSO
+       apropos(1), groff(1), less(1), manpath(1), nroff(1), troff(1), whatis(1), zsoelim(1),  setlocale(3),
+       manpath(5), ascii(7), latin1(7), man(7), catman(8), mandb(8), the man-db package manual, FSSTND
+
+HISTORY
+       1990, 1991 – Originally written by John W. Eaton (jwe@che.utexas.edu).
+
+       Dec   23   1992:  Rik  Faith  (faith@cs.unc.edu)  applied  bug  fixes  supplied  by  Willem  Kasdorp
+       (wkasdo@nikhefk.nikef.nl).
+
+       30th April 1994 – 23rd February 2000: Wilf.  (G.Wilford@ee.surrey.ac.uk)  has  been  developing  and
+       maintaining this package with the help of a few dedicated people.
+
+       30th  October 1996 – 30th March 2001: Fabrizio Polacco <fpolacco@debian.org> maintained and enhanced
+       this package for the Debian project, with the help of all the community.
+
+       31st March 2001 – present day: Colin Watson <cjwatson@debian.org> is now developing and  maintaining
+       man-db.
+
+2.8.3                                            2018-04-05                                          MAN(1)
+LS(1)                                          User Commands                                          LS(1)
+
+NAME
+       ls - list directory contents
+
+SYNOPSIS
+       ls [OPTION]... [FILE]...
+
+DESCRIPTION
+       List information about the FILEs (the current directory by default).  Sort entries alphabetically if
+       none of -cftuvSUX nor --sort is specified.
+
+       Mandatory arguments to long options are mandatory for short options too.
+
+       -a, --all
+              do not ignore entries starting with .
+
+       -A, --almost-all
+              do not list implied . and ..
+
+       --author
+              with -l, print the author of each file
+
+       -b, --escape
+              print C-style escapes for nongraphic characters
+
+       --block-size=SIZE
+              scale sizes by SIZE before printing them; e.g., '--block-size=M' prints  sizes  in  units  of
+              1,048,576 bytes; see SIZE format below
+
+       -B, --ignore-backups
+              do not list implied entries ending with ~
+
+       -c     with  -lt:  sort  by, and show, ctime (time of last modification of file status information);
+              with -l: show ctime and sort by name; otherwise: sort by ctime, newest first
+
+       -C     list entries by columns
+
+       --color[=WHEN]
+              colorize the output; WHEN can be 'always' (default if omitted), 'auto', or 'never'; more info
+              below
+
+       -d, --directory
+              list directories themselves, not their contents
+
+       -D, --dired
+              generate output designed for Emacs' dired mode
+
+       -f     do not sort, enable -aU, disable -ls --color
+
+       -F, --classify
+              append indicator (one of */=>@|) to entries
+
+       --file-type
+              likewise, except do not append '*'
+
+       --format=WORD
+              across -x, commas -m, horizontal -x, long -l, single-column -1, verbose -l, vertical -C
+
+       --full-time
+              like -l --time-style=full-iso
+
+       -g     like -l, but do not list owner
+
+       --group-directories-first
+              group directories before files;
+
+              can be augmented with a --sort option, but any use of --sort=none (-U) disables grouping
+
+       -G, --no-group
+              in a long listing, don't print group names
+
+       -h, --human-readable
+              with -l and/or -s, print human readable sizes (e.g., 1K 234M 2G)
+
+       --si   likewise, but use powers of 1000 not 1024
+
+       -H, --dereference-command-line
+              follow symbolic links listed on the command line
+
+       --dereference-command-line-symlink-to-dir
+              follow each command line symbolic link
+
+              that points to a directory
+
+       --hide=PATTERN
+              do not list implied entries matching shell PATTERN (overridden by -a or -A)
+
+       --hyperlink[=WHEN]
+              hyperlink file names; WHEN can be 'always' (default if omitted), 'auto', or 'never'
+
+       --indicator-style=WORD
+              append  indicator  with  style  WORD  to  entry  names: none (default), slash (-p), file-type
+              (--file-type), classify (-F)
+
+       -i, --inode
+              print the index number of each file
+
+       -I, --ignore=PATTERN
+              do not list implied entries matching shell PATTERN
+
+       -k, --kibibytes
+              default to 1024-byte blocks for disk usage
+
+       -l     use a long listing format
+
+       -L, --dereference
+              when showing file information for a symbolic link, show information for  the  file  the  link
+              references rather than for the link itself
+
+       -m     fill width with a comma separated list of entries
+
+       -n, --numeric-uid-gid
+              like -l, but list numeric user and group IDs
+
+       -N, --literal
+              print entry names without quoting
+
+       -o     like -l, but do not list group information
+
+       -p, --indicator-style=slash
+              append / indicator to directories
+
+       -q, --hide-control-chars
+              print ? instead of nongraphic characters
+
+       --show-control-chars
+              show  nongraphic characters as-is (the default, unless program is 'ls' and output is a termi‐
+              nal)
+
+       -Q, --quote-name
+              enclose entry names in double quotes
+
+       --quoting-style=WORD
+              use quoting style WORD for entry names: literal, locale, shell,  shell-always,  shell-escape,
+              shell-escape-always, c, escape
+
+       -r, --reverse
+              reverse order while sorting
+
+       -R, --recursive
+              list subdirectories recursively
+
+       -s, --size
+              print the allocated size of each file, in blocks
+
+       -S     sort by file size, largest first
+
+       --sort=WORD
+              sort by WORD instead of name: none (-U), size (-S), time (-t), version (-v), extension (-X)
+
+       --time=WORD
+              with -l, show time as WORD instead of default modification time: atime or access or use (-u);
+              ctime or status (-c); also use specified time as sort key if --sort=time (newest first)
+
+       --time-style=STYLE
+              with -l, show times using style STYLE: full-iso, long-iso, iso, locale, or +FORMAT; FORMAT is
+              interpreted  like  in  'date';  if FORMAT is FORMAT1<newline>FORMAT2, then FORMAT1 applies to
+              non-recent files and FORMAT2 to recent files; if STYLE is prefixed with 'posix-', STYLE takes
+              effect only outside the POSIX locale
+
+       -t     sort by modification time, newest first
+
+       -T, --tabsize=COLS
+              assume tab stops at each COLS instead of 8
+
+       -u     with  -lt: sort by, and show, access time; with -l: show access time and sort by name; other‐
+              wise: sort by access time, newest first
+
+       -U     do not sort; list entries in directory order
+
+       -v     natural sort of (version) numbers within text
+
+       -w, --width=COLS
+              set output width to COLS.  0 means no limit
+
+       -x     list entries by lines instead of by columns
+
+       -X     sort alphabetically by entry extension
+
+       -Z, --context
+              print any security context of each file
+
+       -1     list one file per line.  Avoid '\n' with -q or -b
+
+       --help display this help and exit
+
+       --version
+              output version information and exit
+
+       The SIZE  argument  is  an  integer  and  optional  unit  (example:  10K  is  10*1024).   Units  are
+       K,M,G,T,P,E,Z,Y (powers of 1024) or KB,MB,... (powers of 1000).
+
+       Using  color  to  distinguish  file  types is disabled both by default and with --color=never.  With
+       --color=auto, ls emits color codes only when standard  output  is  connected  to  a  terminal.   The
+       LS_COLORS environment variable can change the settings.  Use the dircolors command to set it.
+
+   Exit status:
+       0      if OK,
+
+       1      if minor problems (e.g., cannot access subdirectory),
+
+       2      if serious trouble (e.g., cannot access command-line argument).
+
+AUTHOR
+       Written by Richard M. Stallman and David MacKenzie.
+
+REPORTING BUGS
+       GNU coreutils online help: <http://www.gnu.org/software/coreutils/>
+       Report ls translation bugs to <http://translationproject.org/team/>
+
+COPYRIGHT
+       Copyright  ©  2017  Free  Software  Foundation,  Inc.   License  GPLv3+:  GNU GPL version 3 or later
+       <http://gnu.org/licenses/gpl.html>.
+       This is free software: you are free to change and redistribute it.  There is  NO  WARRANTY,  to  the
+       extent permitted by law.
+
+SEE ALSO
+       Full documentation at: <http://www.gnu.org/software/coreutils/ls>
+       or available locally via: info '(coreutils) ls invocation'
+
+GNU coreutils 8.28                              January 2018                                          LS(1)
+SCANF(3)                                 Linux Programmer's Manual                                 SCANF(3)
+
+NAME
+       scanf, fscanf, sscanf, vscanf, vsscanf, vfscanf - input format conversion
+
+SYNOPSIS
+       #include <stdio.h>
+
+       int scanf(const char *format, ...);
+       int fscanf(FILE *stream, const char *format, ...);
+       int sscanf(const char *str, const char *format, ...);
+
+       #include <stdarg.h>
+
+       int vscanf(const char *format, va_list ap);
+       int vsscanf(const char *str, const char *format, va_list ap);
+       int vfscanf(FILE *stream, const char *format, va_list ap);
+
+   Feature Test Macro Requirements for glibc (see feature_test_macros(7)):
+
+       vscanf(), vsscanf(), vfscanf():
+           _ISOC99_SOURCE || _POSIX_C_SOURCE >= 200112L
+
+DESCRIPTION
+       The scanf() family of functions scans input according to format as described below.  This format may
+       contain conversion specifications; the results from such conversions, if  any,  are  stored  in  the
+       locations  pointed to by the pointer arguments that follow format.  Each pointer argument must be of
+       a type that is appropriate for the value returned by the corresponding conversion specification.
+
+       If the number of conversion specifications in format exceeds the number of  pointer  arguments,  the
+       results are undefined.  If the number of pointer arguments exceeds the number of conversion specifi‐
+       cations, then the excess pointer arguments are evaluated, but are otherwise ignored.
+
+       The scanf() function reads input from the standard input stream stdin, fscanf() reads input from the
+       stream pointer stream, and sscanf() reads its input from the character string pointed to by str.
+
+       The  vfscanf()  function  is analogous to vfprintf(3) and reads input from the stream pointer stream
+       using a variable argument list of pointers (see stdarg(3).  The vscanf() function scans  a  variable
+       argument  list  from the standard input and the vsscanf() function scans it from a string; these are
+       analogous to the vprintf(3) and vsprintf(3) functions respectively.
+
+       The format string consists of a sequence of directives which describe how to process the sequence of
+       input  characters.   If  processing  of  a  directive  fails,  no further input is read, and scanf()
+       returns.  A "failure" can be either of the following: input failure, meaning that  input  characters
+       were unavailable, or matching failure, meaning that the input was inappropriate (see below).
+
+       A directive is one of the following:
+
+       ·      A  sequence  of  white-space  characters  (space,  tab, newline, etc.; see isspace(3)).  This
+              directive matches any amount of white space, including none, in the input.
+
+       ·      An ordinary character (i.e., one other than white space or '%').  This character must exactly
+              match the next character of input.
+
+       ·      A  conversion  specification,  which commences with a '%' (percent) character.  A sequence of
+              characters from the input is converted according to this specification,  and  the  result  is
+              placed  in  the corresponding pointer argument.  If the next item of input does not match the
+              conversion specification, the conversion fails—this is a matching failure.
+
+       Each conversion specification in format begins with  either  the  character  '%'  or  the  character
+       sequence "%n$" (see below for the distinction) followed by:
+
+       ·      An optional '*' assignment-suppression character: scanf() reads input as directed by the con‐
+              version specification,  but  discards  the  input.   No  corresponding  pointer  argument  is
+              required,  and  this  specification  is  not  included in the count of successful assignments
+              returned by scanf().
+
+       ·      For decimal conversions, an optional quote character (').  This specifies that the input num‐
+              ber  may  include  thousands' separators as defined by the LC_NUMERIC category of the current
+              locale.  (See setlocale(3).)  The quote character may precede or follow the  '*'  assignment-
+              suppression character.
+
+       ·      An  optional  'm' character.  This is used with string conversions (%s, %c, %[), and relieves
+              the caller of the need to allocate a corresponding buffer to hold the input: instead, scanf()
+              allocates  a  buffer of sufficient size, and assigns the address of this buffer to the corre‐
+              sponding pointer argument, which should be a pointer to a char * variable (this variable does
+              not  need  to  be  initialized before the call).  The caller should subsequently free(3) this
+              buffer when it is no longer required.
+
+       ·      An optional decimal integer which specifies the maximum field width.  Reading  of  characters
+              stops either when this maximum is reached or when a nonmatching character is found, whichever
+              happens first.  Most conversions discard initial white space characters (the  exceptions  are
+              noted  below),  and  these  discarded  characters don't count toward the maximum field width.
+              String input conversions store a terminating null byte ('\0') to mark the end of  the  input;
+              the maximum field width does not include this terminator.
+
+       ·      An  optional  type modifier character.  For example, the l type modifier is used with integer
+              conversions such as %d to specify that the corresponding pointer argument refers  to  a  long
+              int rather than a pointer to an int.
+
+       ·      A conversion specifier that specifies the type of input conversion to be performed.
+
+       The  conversion  specifications  in  format are of two forms, either beginning with '%' or beginning
+       with "%n$".  The two forms should not be mixed in the same format string, except that a string  con‐
+       taining  "%n$"  specifications  can  include %% and %*.  If format contains '%' specifications, then
+       these correspond in order with successive pointer arguments.  In the "%n$" form (which is  specified
+       in POSIX.1-2001, but not C99), n is a decimal integer that specifies that the converted input should
+       be placed in the location referred to by the n-th pointer argument following format.
+
+   Conversions
+       The following type modifier characters can appear in a conversion specification:
+
+       h      Indicates that the conversion will be one of d, i, o, u, x, X, or n and the next pointer is a
+              pointer to a short int or unsigned short int (rather than int).
+
+       hh     As for h, but the next pointer is a pointer to a signed char or unsigned char.
+
+       j      As for h, but the next pointer is a pointer to an intmax_t or a uintmax_t.  This modifier was
+              introduced in C99.
+
+       l      Indicates either that the conversion will be one of d, i, o, u, x,  X,  or  n  and  the  next
+              pointer  is  a pointer to a long int or unsigned long int (rather than int), or that the con‐
+              version will be one of e, f, or g and the next pointer is a pointer to  double  (rather  than
+              float).   Specifying  two l characters is equivalent to L.  If used with %c or %s, the corre‐
+              sponding parameter is considered as a pointer to a wide character  or  wide-character  string
+              respectively.
+
+       L      Indicates  that the conversion will be either e, f, or g and the next pointer is a pointer to
+              long double or the conversion will be d, i, o, u, or x and the next pointer is a  pointer  to
+              long long.
+
+       q      equivalent to L.  This specifier does not exist in ANSI C.
+
+       t      As  for h, but the next pointer is a pointer to a ptrdiff_t.  This modifier was introduced in
+              C99.
+
+       z      As for h, but the next pointer is a pointer to a size_t.  This  modifier  was  introduced  in
+              C99.
+
+       The following conversion specifiers are available:
+
+       %      Matches  a  literal '%'.  That is, %% in the format string matches a single input '%' charac‐
+              ter.  No conversion is done (but initial white space characters are discarded),  and  assign‐
+              ment does not occur.
+
+       d      Matches an optionally signed decimal integer; the next pointer must be a pointer to int.
+
+       D      Equivalent  to  ld;  this exists only for backward compatibility.  (Note: thus only in libc4.
+              In libc5 and glibc the %D is silently ignored, causing old programs to fail mysteriously.)
+
+       i      Matches an optionally signed integer; the next pointer must be a pointer to int.  The integer
+              is  read in base 16 if it begins with 0x or 0X, in base 8 if it begins with 0, and in base 10
+              otherwise.  Only characters that correspond to the base are used.
+
+       o      Matches an unsigned octal integer; the next pointer must be a pointer to unsigned int.
+
+       u      Matches an unsigned decimal integer; the next pointer must be a pointer to unsigned int.
+
+       x      Matches an unsigned hexadecimal integer; the next pointer must be a pointer to unsigned int.
+
+       X      Equivalent to x.
+
+       f      Matches an optionally signed floating-point number; the next pointer must  be  a  pointer  to
+              float.
+
+       e      Equivalent to f.
+
+       g      Equivalent to f.
+
+       E      Equivalent to f.
+
+       a      (C99) Equivalent to f.
+
+       s      Matches  a  sequence of non-white-space characters; the next pointer must be a pointer to the
+              initial element of a character array that is long enough to hold the input sequence  and  the
+              terminating  null byte ('\0'), which is added automatically.  The input string stops at white
+              space or at the maximum field width, whichever occurs first.
+
+       c      Matches a sequence of characters whose  length  is  specified  by  the  maximum  field  width
+              (default  1);  the  next pointer must be a pointer to char, and there must be enough room for
+              all the characters (no terminating null byte is added).  The  usual  skip  of  leading  white
+              space is suppressed.  To skip white space first, use an explicit space in the format.
+
+       [      Matches  a nonempty sequence of characters from the specified set of accepted characters; the
+              next pointer must be a pointer to char, and there must be enough room for all the  characters
+              in  the  string, plus a terminating null byte.  The usual skip of leading white space is sup‐
+              pressed.  The string is to be made up of characters in (or not in) a particular set; the  set
+              is defined by the characters between the open bracket [ character and a close bracket ] char‐
+              acter.  The set excludes those characters if the first character after the open bracket is  a
+              circumflex (^).  To include a close bracket in the set, make it the first character after the
+              open bracket or the circumflex; any other position will end the set.  The hyphen character  -
+              is also special; when placed between two other characters, it adds all intervening characters
+              to the set.  To include a hyphen, make it the last character before the final close  bracket.
+              For instance, [^]0-9-] means the set "everything except close bracket, zero through nine, and
+              hyphen".  The string ends with the appearance of a character not in the (or, with  a  circum‐
+              flex, in) set or when the field width runs out.
+
+       p      Matches a pointer value (as printed by %p in printf(3); the next pointer must be a pointer to
+              a pointer to void.
+
+       n      Nothing is expected; instead, the number of characters consumed thus far from  the  input  is
+              stored  through  the  next pointer, which must be a pointer to int.  This is not a conversion
+              and does not increase the count returned by the function.  The assignment can  be  suppressed
+              with the * assignment-suppression character, but the effect on the return value is undefined.
+              Therefore %*n conversions should not be used.
+
+RETURN VALUE
+       On success, these functions return the number of input items successfully matched and assigned; this
+       can be fewer than provided for, or even zero, in the event of an early matching failure.
+
+       The  value EOF is returned if the end of input is reached before either the first successful conver‐
+       sion or a matching failure occurs.  EOF is also returned if a read error occurs, in which  case  the
+       error indicator for the stream (see ferror(3)) is set, and errno is set to indicate the error.
+
+ERRORS
+       EAGAIN The  file  descriptor  underlying  stream is marked nonblocking, and the read operation would
+              block.
+
+       EBADF  The file descriptor underlying stream is invalid, or not open for reading.
+
+       EILSEQ Input byte sequence does not form a valid character.
+
+       EINTR  The read operation was interrupted by a signal; see signal(7).
+
+       EINVAL Not enough arguments; or format is NULL.
+
+       ENOMEM Out of memory.
+
+       ERANGE The result of an integer conversion would exceed the size that can be stored  in  the  corre‐
+              sponding integer type.
+
+ATTRIBUTES
+       For an explanation of the terms used in this section, see attributes(7).
+
+       ┌─────────────────────┬───────────────┬────────────────┐
+       │Interface            │ Attribute     │ Value          │
+       ├─────────────────────┼───────────────┼────────────────┤
+       │scanf(), fscanf(),   │ Thread safety │ MT-Safe locale │
+       │sscanf(), vscanf(),  │               │                │
+       │vsscanf(), vfscanf() │               │                │
+       └─────────────────────┴───────────────┴────────────────┘
+
+CONFORMING TO
+       The  functions fscanf(), scanf(), and sscanf() conform to C89 and C99 and POSIX.1-2001.  These stan‐
+       dards do not specify the ERANGE error.
+
+       The q specifier is the 4.4BSD notation for long long, while ll or the usage of L in integer  conver‐
+       sions is the GNU notation.
+
+       The  Linux  version  of  these functions is based on the GNU libio library.  Take a look at the info
+       documentation of GNU libc (glibc-1.08) for a more concise description.
+
+NOTES
+   The 'a' assignment-allocation modifier
+       Originally, the GNU C library supported dynamic allocation  for  string  inputs  (as  a  nonstandard
+       extension) via the a character.  (This feature is present at least as far back as glibc 2.0.)  Thus,
+       one could write the following to have scanf() allocate a buffer for an input string, with a  pointer
+       to that buffer being returned in *buf:
+
+           char *buf;
+           scanf("%as", &buf);
+
+       The  use  of  the  letter a for this purpose was problematic, since a is also specified by the ISO C
+       standard as a synonym for f (floating-point input).  POSIX.1-2008 instead specifies the  m  modifier
+       for assignment allocation (as documented in DESCRIPTION, above).
+
+       Note  that  the  a  modifier  is  not  available if the program is compiled with gcc -std=c99 or gcc
+       -D_ISOC99_SOURCE (unless _GNU_SOURCE is also specified), in which case the a  is  interpreted  as  a
+       specifier for floating-point numbers (see above).
+
+       Support for the m modifier was added to glibc starting with version 2.7, and new programs should use
+       that modifier instead of a.
+
+       As well as being standardized by POSIX, the m modifier has the following further advantages over the
+       use of a:
+
+       * It may also be applied to %c conversion specifiers (e.g., %3mc).
+
+       * It  avoids ambiguity with respect to the %a floating-point conversion specifier (and is unaffected
+         by gcc -std=c99 etc.).
+
+BUGS
+       All functions are fully C89 conformant, but provide the additional specifiers q and a as well as  an
+       additional  behavior  of  the  L  and l specifiers.  The latter may be considered to be a bug, as it
+       changes the behavior of specifiers defined in C89.
+
+       Some combinations of the type modifiers and conversion specifiers defined by  ANSI  C  do  not  make
+       sense  (e.g., %Ld).  While they may have a well-defined behavior on Linux, this need not to be so on
+       other architectures.  Therefore it usually is better to use modifiers that are not defined by ANSI C
+       at all, that is, use q instead of L in combination with d, i, o, u, x, and X conversions or ll.
+
+       The  usage of q is not the same as on 4.4BSD, as it may be used in float conversions equivalently to
+       L.
+
+EXAMPLE
+       To use the dynamic allocation conversion specifier, specify m as a  length  modifier  (thus  %ms  or
+       %m[range]).  The caller must free(3) the returned string, as in the following example:
+
+           char *p;
+           int n;
+
+           errno = 0;
+           n = scanf("%m[a-z]", &p);
+           if (n == 1) {
+               printf("read: %s\n", p);
+               free(p);
+           } else if (errno != 0) {
+               perror("scanf");
+           } else {
+               fprintf(stderr, "No matching characters\n");
+           }
+
+       As shown in the above example, it is necessary to call free(3) only if the scanf() call successfully
+       read a string.
+
+SEE ALSO
+       getc(3), printf(3), setlocale(3), strtod(3), strtol(3), strtoul(3)
+
+COLOPHON
+       This page is part of release 4.15 of the Linux man-pages project.  A  description  of  the  project,
+       information  about  reporting  bugs,  and  the  latest  version  of  this  page,  can  be  found  at
+       https://www.kernel.org/doc/man-pages/.
+
+GNU                                              2017-09-15                                        SCANF(3)
+STDIO(3)                                 Linux Programmer's Manual                                 STDIO(3)
+
+NAME
+       stdio - standard input/output library functions
+
+SYNOPSIS
+       #include <stdio.h>
+
+       FILE *stdin;
+       FILE *stdout;
+       FILE *stderr;
+
+DESCRIPTION
+       The  standard  I/O library provides a simple and efficient buffered stream I/O interface.  Input and
+       output is mapped into logical data streams and the physical I/O characteristics are concealed.   The
+       functions and macros are listed below; more information is available from the individual man pages.
+
+       A  stream  is  associated  with an external file (which may be a physical device) by opening a file,
+       which may involve creating a new file.  Creating an existing file causes its former contents  to  be
+       discarded.   If a file can support positioning requests (such as a disk file, as opposed to a termi‐
+       nal), then a file position indicator associated with the stream is positioned at the  start  of  the
+       file (byte zero), unless the file is opened with append mode.  If append mode is used, it is unspec‐
+       ified whether the position indicator will be placed at the start or the end of the file.  The  posi‐
+       tion indicator is maintained by subsequent reads, writes and positioning requests.  All input occurs
+       as if the characters were read by successive calls to the fgetc(3) function; all output takes  place
+       as if all characters were written by successive calls to the fputc(3) function.
+
+       A  file is disassociated from a stream by closing the file.  Output streams are flushed (any unwrit‐
+       ten buffer contents are transferred to the host environment) before the stream is disassociated from
+       the  file.   The  value  of  a  pointer  to  a  FILE  object is indeterminate after a file is closed
+       (garbage).
+
+       A file may be subsequently reopened, by the same or another  program  execution,  and  its  contents
+       reclaimed or modified (if it can be repositioned at the start).  If the main function returns to its
+       original caller, or the exit(3) function is called, all open files  are  closed  (hence  all  output
+       streams  are  flushed)  before  program  termination.  Other methods of program termination, such as
+       abort(3) do not bother about closing files properly.
+
+       At program startup, three text streams are predefined and need not be  opened  explicitly:  standard
+       input (for reading conventional input), standard output (for writing conventional output), and stan‐
+       dard error (for writing diagnostic output).   These  streams  are  abbreviated  stdin,  stdout,  and
+       stderr.  When opened, the standard error stream is not fully buffered; the standard input and output
+       streams are fully buffered if and only if the streams do not refer to an interactive device.
+
+       Output streams that refer to terminal devices are always line buffered by default; pending output to
+       such  streams  is written automatically whenever an input stream that refers to a terminal device is
+       read.  In cases where a large amount of computation is done after printing part of a line on an out‐
+       put  terminal,  it  is  necessary to fflush(3) the standard output before going off and computing so
+       that the output will appear.
+
+       The stdio library is a part of the library libc and routines are automatically loaded as  needed  by
+       cc(1).   The  SYNOPSIS sections of the following manual pages indicate which include files are to be
+       used, what the compiler declaration for the function looks like and which external variables are  of
+       interest.
+
+       The following are defined as macros; these names may not be reused without first removing their cur‐
+       rent definitions with #undef: BUFSIZ, EOF, FILENAME_MAX, FOPEN_MAX, L_cuserid, L_ctermid,  L_tmpnam,
+       NULL,  SEEK_END,  SEEK_SET,  SEEK_CUR, TMP_MAX, clearerr, feof, ferror, fileno, getc, getchar, putc,
+       putchar, stderr, stdin, stdout.  Function versions of the macro functions  feof,  ferror,  clearerr,
+       fileno,  getc,  getchar,  putc,  and  putchar  exist  and will be used if the macros definitions are
+       explicitly removed.
+
+   List of functions
+       Function         Description
+       ──────────────────────────────────────────────────────────────────────
+       clearerr(3)      check and reset stream status
+       fclose(3)        close a stream
+       fdopen(3)        stream open functions
+       feof(3)          check and reset stream status
+       ferror(3)        check and reset stream status
+       fflush(3)        flush a stream
+       fgetc(3)         get next character or word from input stream
+       fgetpos(3)       reposition a stream
+       fgets(3)         get a line from a stream
+       fileno(3)        return the integer descriptor of the argument stream
+       fopen(3)         stream open functions
+       fprintf(3)       formatted output conversion
+       fpurge(3)        flush a stream
+       fputc(3)         output a character or word to a stream
+       fputs(3)         output a line to a stream
+       fread(3)         binary stream input/output
+       freopen(3)       stream open functions
+       fscanf(3)        input format conversion
+       fseek(3)         reposition a stream
+       fsetpos(3)       reposition a stream
+       ftell(3)         reposition a stream
+       fwrite(3)        binary stream input/output
+       getc(3)          get next character or word from input stream
+       getchar(3)       get next character or word from input stream
+       gets(3)          get a line from a stream
+       getw(3)          get next character or word from input stream
+       mktemp(3)        make temporary filename (unique)
+       perror(3)        system error messages
+       printf(3)        formatted output conversion
+       putc(3)          output a character or word to a stream
+       putchar(3)       output a character or word to a stream
+       puts(3)          output a line to a stream
+       putw(3)          output a character or word to a stream
+       remove(3)        remove directory entry
+       rewind(3)        reposition a stream
+       scanf(3)         input format conversion
+       setbuf(3)        stream buffering operations
+       setbuffer(3)     stream buffering operations
+       setlinebuf(3)    stream buffering operations
+       setvbuf(3)       stream buffering operations
+       sprintf(3)       formatted output conversion
+       sscanf(3)        input format conversion
+       strerror(3)      system error messages
+       sys_errlist(3)   system error messages
+       sys_nerr(3)      system error messages
+       tempnam(3)       temporary file routines
+       tmpfile(3)       temporary file routines
+       tmpnam(3)        temporary file routines
+       ungetc(3)        un-get character from input stream
+       vfprintf(3)      formatted output conversion
+       vfscanf(3)       input format conversion
+       vprintf(3)       formatted output conversion
+       vscanf(3)        input format conversion
+       vsprintf(3)      formatted output conversion
+       vsscanf(3)       input format conversion
+
+CONFORMING TO
+       The stdio library conforms to C89.
+
+SEE ALSO
+       close(2), open(2), read(2), write(2), stdout(3), unlocked_stdio(3)
+
+COLOPHON
+       This page is part of release 4.15 of the Linux man-pages project.  A  description  of  the  project,
+       information  about  reporting  bugs,  and  the  latest  version  of  this  page,  can  be  found  at
+       https://www.kernel.org/doc/man-pages/.
+
+                                                 2017-11-26                                        STDIO(3)
+PRINTF(1)                                      User Commands                                      PRINTF(1)
+
+NAME
+       printf - format and print data
+
+SYNOPSIS
+       printf FORMAT [ARGUMENT]...
+       printf OPTION
+
+DESCRIPTION
+       Print ARGUMENT(s) according to FORMAT, or execute according to OPTION:
+
+       --help display this help and exit
+
+       --version
+              output version information and exit
+
+       FORMAT controls the output as in C printf.  Interpreted sequences are:
+
+       \"     double quote
+
+       \\     backslash
+
+       \a     alert (BEL)
+
+       \b     backspace
+
+       \c     produce no further output
+
+       \e     escape
+
+       \f     form feed
+
+       \n     new line
+
+       \r     carriage return
+
+       \t     horizontal tab
+
+       \v     vertical tab
+
+       \NNN   byte with octal value NNN (1 to 3 digits)
+
+       \xHH   byte with hexadecimal value HH (1 to 2 digits)
+
+       \uHHHH Unicode (ISO/IEC 10646) character with hex value HHHH (4 digits)
+
+       \UHHHHHHHH
+              Unicode character with hex value HHHHHHHH (8 digits)
+
+       %%     a single %
+
+       %b     ARGUMENT  as a string with '\' escapes interpreted, except that octal escapes are of the form
+              \0 or \0NNN
+
+       %q     ARGUMENT is printed in a format that can be reused as  shell  input,  escaping  non-printable
+              characters with the proposed POSIX $'' syntax.
+
+       and all C format specifications ending with one of diouxXfeEgGcs, with ARGUMENTs converted to proper
+       type first.  Variable widths are handled.
+
+       NOTE: your shell may have its own version of printf, which usually supersedes the version  described
+       here.  Please refer to your shell's documentation for details about the options it supports.
+
+AUTHOR
+       Written by David MacKenzie.
+
+REPORTING BUGS
+       GNU coreutils online help: <http://www.gnu.org/software/coreutils/>
+       Report printf translation bugs to <http://translationproject.org/team/>
+
+COPYRIGHT
+       Copyright  ©  2017  Free  Software  Foundation,  Inc.   License  GPLv3+:  GNU GPL version 3 or later
+       <http://gnu.org/licenses/gpl.html>.
+       This is free software: you are free to change and redistribute it.  There is  NO  WARRANTY,  to  the
+       extent permitted by law.
+
+SEE ALSO
+       printf(3)
+
+       Full documentation at: <http://www.gnu.org/software/coreutils/printf>
+       or available locally via: info '(coreutils) printf invocation'
+
+GNU coreutils 8.28                              January 2018                                      PRINTF(1)

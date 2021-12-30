@@ -1,0 +1,63 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CFLAGS	makefile	/^CFLAGS := -I.\/ -g -Og -std=c++14$/;"	m
+CXX	makefile	/^CXX := g++$/;"	m
+DR_ERROR	meta.hh	20;"	d
+DR_ERRSTR	meta.hh	15;"	d
+DrTask	meta.hh	/^  DrTask(std::string your_name) : name_(your_name), version_(VERSION) {};$/;"	f	class:DrTask
+DrTask	meta.hh	/^class DrTask$/;"	c
+EXG	meta.hh	12;"	d
+LDFLAGS	makefile	/^LDFLAGS :=$/;"	m
+MYNAME	task.cc	19;"	d	file:
+MyTask	task.cc	/^  MyTask(std::string your_name) : DrTask(your_name) {};$/;"	f	class:MyTask
+MyTask	task.cc	/^class MyTask : public DrTask$/;"	c	file:
+N1	meta.hh	6;"	d
+N2	meta.hh	7;"	d
+TEST_DATA	meta.hh	3;"	d
+VERSION	meta.hh	2;"	d
+_M	meta.hh	9;"	d
+_N	meta.hh	10;"	d
+do_the_maths	meta.hh	/^  virtual void do_the_maths(void){};$/;"	f	class:DrTask
+do_the_maths	task.cc	/^void MyTask::do_the_maths(void)$/;"	f	class:MyTask
+egcd	meta.hh	/^std::tuple<int64_t, int64_t, int64_t> DrTask::egcd(int64_t n, int64_t m)$/;"	f	class:DrTask
+end	meta.hh	/^void DrTask::end(void)$/;"	f	class:DrTask
+expt	meta.hh	/^uint64_t DrTask::expt(uint64_t n, uint64_t e)$/;"	f	class:DrTask
+finish_the_work	meta.hh	/^  virtual void finish_the_work(void){};$/;"	f	class:DrTask
+finish_the_work	task.cc	/^void MyTask::finish_the_work(void)$/;"	f	class:MyTask
+gcd	meta.hh	/^uint64_t DrTask::gcd(uint64_t n, uint64_t m)$/;"	f	class:DrTask
+get_all_prime_divisors	task.cc	/^std::list<uint64_t> MyTask::get_all_prime_divisors(uint64_t n)$/;"	f	class:MyTask
+get_check_list	meta.hh	/^std::list<uint64_t> DrTask::get_check_list(uint64_t n)$/;"	f	class:DrTask
+get_exponent	meta.hh	/^uint64_t DrTask::get_exponent(void)$/;"	f	class:DrTask
+get_my_numbers	meta.hh	/^std::tuple<uint64_t, uint64_t> DrTask::get_my_numbers(void)$/;"	f	class:DrTask
+greeting	meta.hh	/^  virtual void greeting(void){};$/;"	f	class:DrTask
+greeting	task.cc	/^void MyTask::greeting(void)$/;"	f	class:MyTask
+is_prime	task.cc	/^bool MyTask::is_prime(uint64_t n)$/;"	f	class:MyTask
+jabberwocky	task.cc	/^std::string MyTask::jabberwocky(std::string s)$/;"	f	class:MyTask
+let_me_check_it	meta.hh	/^void DrTask::let_me_check_it(std::function<std::list<uint64_t>(uint64_t)>generator)$/;"	f	class:DrTask
+load	meta.hh	/^  virtual void load(std::string filename){};$/;"	f	class:DrTask
+load	task.cc	/^void MyTask::load(std::string filename)$/;"	f	class:MyTask
+main	task.cc	/^int main(void)$/;"	f
+max	meta.hh	/^uint64_t DrTask::max(std::list<uint64_t> lst)$/;"	f	class:DrTask
+min	meta.hh	/^uint64_t DrTask::min(std::list<uint64_t> lst)$/;"	f	class:DrTask
+modular_linear_equation_solver	meta.hh	/^std::list<int64_t> DrTask::modular_linear_equation_solver(int64_t a,$/;"	f	class:DrTask
+multiplicative_inverse	meta.hh	/^uint64_t DrTask::multiplicative_inverse(void)$/;"	f	class:DrTask
+name_	meta.hh	/^  std::string name_;$/;"	m	class:DrTask
+override	task.cc	/^  void do_the_maths(void) override;$/;"	m	class:MyTask	file:
+override	task.cc	/^  void finish_the_work(void) override;$/;"	m	class:MyTask	file:
+override	task.cc	/^  void greeting(void) override;$/;"	m	class:MyTask	file:
+override	task.cc	/^  void load(std::string filename) override;$/;"	m	class:MyTask	file:
+override	task.cc	/^  void run(void) override;$/;"	m	class:MyTask	file:
+phi_	meta.hh	/^  uint64_t phi_;$/;"	m	class:DrTask
+pick	meta.hh	/^uint64_t DrTask::pick(std::list<uint64_t> lst,$/;"	f	class:DrTask
+pk_	meta.hh	/^  uint64_t pk_;$/;"	m	class:DrTask
+run	meta.hh	/^  virtual void run(void){};$/;"	f	class:DrTask
+run	task.cc	/^void MyTask::run(void)$/;"	f	class:MyTask
+sk_	meta.hh	/^  uint64_t sk_;$/;"	m	class:DrTask
+sn_	meta.hh	/^  uint64_t sn_;$/;"	m	class:DrTask
+version_	meta.hh	/^  std::string version_;$/;"	m	class:DrTask
+~DrTask	meta.hh	/^  ~DrTask() {};$/;"	f	class:DrTask
+~MyTask	task.cc	/^  ~MyTask() { \/* feel free to add your destroy code *\/ };$/;"	f	class:MyTask

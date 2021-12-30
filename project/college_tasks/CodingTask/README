@@ -1,0 +1,18 @@
+Version 2017-7
+
+Environment requirement: a compiler supports C++14 (gcc-5.4+)
+The easiest way to setup environment is to intall Debian-9(stretch), and run:
+sudo apt-get install build-essential
+
+You may need docker or VMware if you're under Windows.
+No matter how you do it, just find out a workable Linux machine and do the task.
+
+Please read the comments in task.cc carefully and finish the task.
+You're NOT allowed to modify meta.hh.
+
+When you finish, run `make run', when it's OK for you, please submit all things.
+
+Good luck!
+
+
+
